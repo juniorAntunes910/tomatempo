@@ -1,13 +1,352 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toma Tempo</title>
-    <link rel="stylesheet" href="style.css">
+    <title>TomaTempo - Pomodoro Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.5s, color 0.5s; }
+        .tab-active { background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #0f172a; }
+        .dark .tab-active { background-color: #334155; color: white; }
+        .mode-focus { --theme-from: #f43f5e; --theme-to: #dc2626; }
+        .mode-shortBreak { --theme-from: #2dd4bf; --theme-to: #10b981; }
+        .mode-longBreak { --theme-from: #3b82f6; --theme-to: #4f46e5; }
+        input[type="range"] { accent-color: #f43f5e; }
+        .task-completed { opacity: 0.6; }
+        .task-completed span { text-decoration: line-through; }
+    </style>
 </head>
-<body>
-    
-    <script src="script.js"></script>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="w-full max-w-2xl flex justify-between items-center mb-12">
+        <div class="flex items-center gap-2 font-bold text-2xl tracking-tight">
+            <div id="logo-icon" class="p-2 rounded-lg bg-gradient-to-br from-rose-500 to-red-600 text-white transition-all duration-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>
+            </div>
+            <span>TomaTempo</span>
+        </div>
+        
+        <div class="flex gap-2">
+            <button onclick="toggleMute()" class="p-2 rounded-full hover:bg-slate-200 transition-colors" id="btn-mute">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </button>
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-200 transition-colors">
+                <svg id="sun-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M22 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+            </button>
+            <button onclick="toggleSettings()" class="p-2 rounded-full hover:bg-slate-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-lg flex flex-col items-center">
+        <!-- Timer Card -->
+        <div id="timer-card" class="w-full p-8 rounded-3xl shadow-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 transition-all duration-500">
+            
+            <!-- Tabs -->
+            <div class="flex justify-center gap-2 mb-8 p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl">
+                <button onclick="setMode('focus')" id="tab-focus" class="tab-btn tab-active flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all">Foco</button>
+                <button onclick="setMode('shortBreak')" id="tab-shortBreak" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-slate-500 transition-all">Curto</button>
+                <button onclick="setMode('longBreak')" id="tab-longBreak" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-slate-500 transition-all">Longo</button>
+            </div>
+
+            <!-- Countdown -->
+            <div class="text-center mb-8">
+                <h1 id="timer-display" class="text-8xl font-black tracking-tighter tabular-nums mb-4 bg-gradient-to-b from-rose-500 to-red-600 bg-clip-text text-transparent">
+                    25:00
+                </h1>
+                <p id="mode-label" class="text-slate-400 font-medium uppercase tracking-widest text-xs">Hora de Focar</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-6">
+                <button onclick="resetTimer()" class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-rose-500 transition-all hover:scale-110 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                </button>
+                
+                <button onclick="toggleTimer()" id="btn-play" class="p-6 rounded-3xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/20 hover:scale-105 active:scale-95 transition-all">
+                    <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <svg id="pause-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </button>
+
+                <button disabled class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-500 opacity-30 cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Task List -->
+        <div class="w-full mt-12 mb-20">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <svg class="text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Tarefas
+                </h2>
+                <span id="task-count" class="text-xs font-bold px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-500 uppercase">
+                    0 Pendentes
+                </span>
+            </div>
+
+            <div class="relative mb-4 group">
+                <input id="task-input" type="text" placeholder="O que vamos fazer agora?" class="w-full p-4 pl-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all shadow-sm">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <button onclick="addTask()" class="absolute right-3 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    Adicionar
+                </button>
+            </div>
+
+            <div id="tasks-container" class="space-y-3">
+                <!-- Tarefas entram aqui -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Configurações</h3>
+                <button onclick="toggleSettings()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
+                    <svg class="rotate-45" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 mb-2">Tempo de Foco</label>
+                    <input type="range" id="input-focus" min="1" max="60" value="25" oninput="updateSettingLabel('focus')" class="w-full">
+                    <div class="flex justify-between text-xs font-bold mt-1 text-slate-400">
+                        <span>1 min</span>
+                        <span id="label-focus" class="text-rose-500">25 minutos</span>
+                        <span>60 min</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 mb-2">Descanso Curto</label>
+                    <input type="range" id="input-short" min="1" max="60" value="5" oninput="updateSettingLabel('short')" class="w-full">
+                    <div class="flex justify-between text-xs font-bold mt-1 text-slate-400">
+                        <span>1 min</span>
+                        <span id="label-short" class="text-rose-500">5 minutos</span>
+                        <span>60 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveSettings()" class="w-full mt-8 py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold rounded-2xl hover:opacity-90 transition-opacity">
+                Salvar Alterações
+            </button>
+        </div>
+    </div>
+
+    <footer class="mt-auto py-8 text-slate-400 text-sm font-medium">
+        Desenvolvido com foco e café • 2024
+    </footer>
+
+    <script>
+        // --- Estado Global ---
+        let state = {
+            minutes: 25,
+            seconds: 0,
+            isActive: false,
+            mode: 'focus', // focus, shortBreak, longBreak
+            isMuted: false,
+            settings: {
+                focus: 25,
+                shortBreak: 5,
+                longBreak: 15
+            },
+            tasks: [
+                { id: 1, text: 'Estudar JavaScript', completed: false },
+                { id: 2, text: 'Estruturar HTML', completed: true }
+            ]
+        };
+
+        let timerInterval = null;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // --- Inicialização ---
+        function init() {
+            updateTimerDisplay();
+            renderTasks();
+        }
+
+        // --- Lógica do Timer ---
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            display.textContent = `${String(state.minutes).padStart(2, '0')}:${String(state.seconds).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            state.isActive = !state.isActive;
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            if (state.isActive) {
+                playBeep(660, 0.1);
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                timerInterval = setInterval(tick, 1000);
+            } else {
+                clearInterval(timerInterval);
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        }
+
+        function tick() {
+            if (state.seconds > 0) {
+                state.seconds--;
+            } else if (state.minutes > 0) {
+                state.minutes--;
+                state.seconds = 59;
+            } else {
+                playBeep(880, 0.8);
+                setMode(state.mode === 'focus' ? 'shortBreak' : 'focus');
+                toggleTimer(); // Para e reseta
+            }
+            updateTimerDisplay();
+        }
+
+        function resetTimer() {
+            state.isActive = false;
+            clearInterval(timerInterval);
+            state.minutes = state.settings[state.mode];
+            state.seconds = 0;
+            
+            document.getElementById('play-icon').classList.remove('hidden');
+            document.getElementById('pause-icon').classList.add('hidden');
+            updateTimerDisplay();
+        }
+
+        function setMode(newMode) {
+            state.mode = newMode;
+            
+            // UI Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active', 'text-slate-900', 'dark:text-white');
+                btn.classList.add('text-slate-500');
+            });
+            const activeBtn = document.getElementById(`tab-${newMode}`);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('text-slate-500');
+
+            // UI Colors
+            const display = document.getElementById('timer-display');
+            const logo = document.getElementById('logo-icon');
+            const playBtn = document.getElementById('btn-play');
+            const label = document.getElementById('mode-label');
+
+            if(newMode === 'focus') {
+                display.className = "text-8xl font-black tracking-tighter tabular-nums mb-4 bg-gradient-to-b from-rose-500 to-red-600 bg-clip-text text-transparent";
+                logo.className = "p-2 rounded-lg bg-gradient-to-br from-rose-500 to-red-600 text-white transition-all";
+                playBtn.className = "p-6 rounded-3xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/20 hover:scale-105 transition-all";
+                label.textContent = "Hora de Focar";
+            } else {
+                display.className = "text-8xl font-black tracking-tighter tabular-nums mb-4 bg-gradient-to-b from-teal-400 to-emerald-500 bg-clip-text text-transparent";
+                logo.className = "p-2 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 text-white transition-all";
+                playBtn.className = "p-6 rounded-3xl bg-gradient-to-br from-teal-400 to-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all";
+                label.textContent = "Hora de Relaxar";
+            }
+
+            resetTimer();
+        }
+
+        // --- Lógica de Tarefas ---
+        function renderTasks() {
+            const container = document.getElementById('tasks-container');
+            const countLabel = document.getElementById('task-count');
+            container.innerHTML = '';
+            
+            let pendentes = 0;
+            state.tasks.forEach(task => {
+                if(!task.completed) pendentes++;
+                const div = document.createElement('div');
+                div.className = `group flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 transition-all hover:shadow-md ${task.completed ? 'task-completed' : ''}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleTask(${task.id})" class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-600 hover:border-rose-500'}">
+                            ${task.completed ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                        </button>
+                        <span class="font-medium text-slate-700 dark:text-slate-200">${task.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${task.id})" class="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-rose-500 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            countLabel.textContent = `${pendentes} Pendentes`;
+        }
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if(!input.value.trim()) return;
+            state.tasks.push({ id: Date.now(), text: input.value, completed: false });
+            input.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            state.tasks = state.tasks.map(t => t.id === id ? {...t, completed: !t.completed} : t);
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        // --- Configurações e UI ---
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            document.getElementById('sun-icon').classList.toggle('hidden');
+            document.getElementById('moon-icon').classList.toggle('hidden');
+        }
+
+        function toggleSettings() {
+            document.getElementById('modal-settings').classList.toggle('hidden');
+        }
+
+        function updateSettingLabel(type) {
+            const val = document.getElementById(`input-${type}`).value;
+            document.getElementById(`label-${type}`).textContent = `${val} minutos`;
+        }
+
+        function saveSettings() {
+            state.settings.focus = parseInt(document.getElementById('input-focus').value);
+            state.settings.shortBreak = parseInt(document.getElementById('input-short').value);
+            toggleSettings();
+            resetTimer();
+        }
+
+        function toggleMute() {
+            state.isMuted = !state.isMuted;
+            document.getElementById('btn-mute').innerHTML = state.isMuted 
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+        }
+
+        function playBeep(freq, duration) {
+            if (state.isMuted) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // Iniciar
+        window.onload = init;
+    </script>
 </body>
 </html>
