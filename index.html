@@ -1,34 +1,67 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TomaTempo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pomodoro Timer | Tomato Focus</title>
+    <!-- Font Awesome 6 (ícones profissionais) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <canvas id="bg-canvas"></canvas>
+    
+    <div class="app-container">
+        <div class="logo-area">
+            <img src="assets/logo.png" alt="Tomato Logo" class="logo" id="logo-img">
+        </div>
 
-    <main>
-
-        <header class="app__header">
-            <img src="../imagens/gato.jpg" alt="Logo" class="logo" />
-            <h1>Tomatempo</h1>
-        </header>
-
-        <div class="app__content">
-            <div class="timer">
-                <span id="minutes">25</span>:<span id="seconds">00</span>
+        <div class="timer-card">
+            <div class="mode-badge" id="modeBadge">
+                <i class="fas fa-clock"></i> <span id="modeName">Foco</span>
             </div>
-            <div class="controls">
-                <button id="start">Iniciar</button>
-                <button id="pause">Pausar</button>
-                <button id="reset">Resetar</button>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-controls">
+                <button class="ctrl-btn" id="startBtn">
+                    <i class="fas fa-play"></i> <span>Iniciar</span>
+                </button>
+                <button class="ctrl-btn" id="pauseBtn">
+                    <i class="fas fa-pause"></i> <span>Pausar</span>
+                </button>
+                <button class="ctrl-btn" id="resetBtn">
+                    <i class="fas fa-undo-alt"></i> <span>Resetar</span>
+                </button>
             </div>
         </div>
-    </main>
 
+        <div class="mode-selector">
+            <button class="mode-option" data-mode="pomodoro">
+                <i class="fas fa-tomato"></i> Pomodoro <span class="duration">25min</span>
+            </button>
+            <button class="mode-option" data-mode="shortBreak">
+                <i class="fas fa-mug-hot"></i> Pausa curta <span class="duration">5min</span>
+            </button>
+            <button class="mode-option" data-mode="longBreak">
+                <i class="fas fa-leaf"></i> Pausa longa <span class="duration">15min</span>
+            </button>
+        </div>
+
+        <div class="status-message" id="statusMsg">
+            <i class="fas fa-hourglass-half"></i> Pronto para focar
+        </div>
+    </div>
+
+    <!-- Three.js biblioteca -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script src="script.js" type="module"></script>
+    <script src="animations.js" type="module"></script>
 </body>
-
 </html>

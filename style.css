@@ -1,0 +1,222 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #0a1f1a;  /* verde escuro profundo */
+    color: #e0f2e9;
+    overflow: hidden;
+    position: relative;
+}
+
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+}
+
+.app-container {
+    position: relative;
+    z-index: 10;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+/* Logo área */
+.logo-area {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+    transition: transform 0.2s ease;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+}
+
+.app-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #ff6b4a, #c93a2c);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-top: 0.75rem;
+}
+
+/* Card do timer */
+.timer-card {
+    background: rgba(18, 35, 28, 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 3rem;
+    padding: 2rem 2rem;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 80, 50, 0.3);
+    transition: all 0.2s;
+}
+
+.mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2c3e2b;
+    padding: 0.4rem 1.2rem;
+    border-radius: 60px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffd0b5;
+    margin-bottom: 1.5rem;
+    border-left: 3px solid #e34d2b;
+}
+
+.timer-display {
+    font-size: 5.5rem;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 5px;
+    color: #fbe9d2;
+    text-shadow: 0 0 12px rgba(227, 77, 43, 0.4);
+    margin: 0.5rem 0;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.8rem;
+}
+
+.ctrl-btn {
+    background: rgba(30, 45, 38, 0.9);
+    border: none;
+    padding: 0.7rem 1.6rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #f0e6d8;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.ctrl-btn i {
+    font-size: 1rem;
+}
+
+.ctrl-btn:hover {
+    background: #e34d2b;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(227, 77, 43, 0.4);
+}
+
+.ctrl-btn:active {
+    transform: translateY(1px);
+}
+
+/* Modos */
+.mode-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem;
+    width: 100%;
+}
+
+.mode-option {
+    background: rgba(20, 35, 28, 0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(227, 77, 43, 0.4);
+    padding: 0.7rem 1.3rem;
+    border-radius: 3rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #e0e7e0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.mode-option i {
+    font-size: 1.1rem;
+    color: #e34d2b;
+}
+
+.mode-option .duration {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-left: 0.3rem;
+}
+
+.mode-option.active {
+    background: #e34d2b;
+    color: white;
+    border-color: #ffb085;
+    box-shadow: 0 0 12px rgba(227,77,43,0.6);
+}
+
+.mode-option.active i {
+    color: white;
+}
+
+.status-message {
+    background: rgba(0,0,0,0.4);
+    padding: 0.5rem 1.2rem;
+    border-radius: 3rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+}
+
+/* Responsivo */
+@media (max-width: 550px) {
+    .timer-display {
+        font-size: 3.5rem;
+        letter-spacing: 2px;
+    }
+    .ctrl-btn span {
+        display: none;
+    }
+    .ctrl-btn i {
+        font-size: 1.3rem;
+    }
+    .ctrl-btn {
+        padding: 0.8rem 1.2rem;
+    }
+    .mode-option .duration {
+        display: inline;
+    }
+}
